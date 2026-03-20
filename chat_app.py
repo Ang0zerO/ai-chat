@@ -1,10 +1,9 @@
 import streamlit as st
 import openai
 
-# ====== 请修改下面的两行 ======
-openai.api_base = "https://api.vectorengine.ai/v1"  # 改成你的中转站地址
-openai.api_key = "sk-HhoCq6IvczLDjd8InC8SQXgrL3HfXhwoblrKoLTr6gDkIFGa"  # 改成你的密钥
-# =============================
+# API 配置从 Streamlit Secrets 读取
+openai.api_base = st.secrets["openai"]["api_base"]
+openai.api_key = st.secrets["openai"]["api_key"]
 
 st.set_page_config(page_title="角色扮演AI", page_icon="🎭")
 st.title("🎭 角色扮演 AI")
@@ -20,7 +19,7 @@ with st.sidebar:
     if st.button("✨ 应用角色"):
         st.session_state.system_prompt = system_prompt
         st.success("角色已更新！")
-
+    
     if st.button("🗑️ 清除对话"):
         st.session_state.messages = []
         st.rerun()
@@ -48,9 +47,9 @@ if prompt := st.chat_input("请输入你的问题"):
                 # 构建消息列表，加入系统提示词
                 messages = [{"role": "system", "content": st.session_state.system_prompt}]
                 messages.extend([{"role": m["role"], "content": m["content"]} for m in st.session_state.messages])
-
+                
                 response = openai.ChatCompletion.create(
-                    model="deepseek-v3.1-fast",  # 这里可以改成其他模型，比如 gpt-3.5-turbo
+                    model="deepseek-chat",  # 根据你的中转站支持的模型名修改
                     messages=messages
                 )
                 reply = response.choices[0].message.content
